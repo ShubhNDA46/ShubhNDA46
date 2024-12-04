@@ -28,11 +28,95 @@ Ensure the dataset drugdataset.csv is placed in the same directory as the script
 Run the script:
 python drug_classification_ann.py
 
-End with an example of getting some data out of the system:
-The script will output evaluation metrics like confusion matrix and classification report for testing accuracy.
+The script includes the following steps
 
-# Running the tests
+# Loading the Dataset
+
+    #Load Libraries
+    import pandas as pd
+    import numpy as np
+
+    #Load Data
+    data = pd.read_csv("drugdataset.csv")
+    print(data.head())
+
+ # Data Preprocessing
+
+      #Preprocess Data
+      X = data.drop('Drug', axis=1).to_numpy()
+      y = data['Drug'].to_numpy()
+
+     #Split into training and testing sets
+     from sklearn.model_selection import train_test_split
+     X_train, X_test, y_train, y_test = train_test_split(
+     X, y, stratify=y, test_size=0.2, random_state=100
+    )
+
+    #Scale the data
+    from sklearn.preprocessing import StandardScaler
+    sc = StandardScaler()
+    X_train_scaled = sc.fit_transform(X_train)
+    X_test_scaled = sc.transform(X_test)
+
+# Training the ANN
+
+      #Train an Artificial Neural Network
+       from sklearn.neural_network import MLPClassifier
+       mlp = MLPClassifier(
+       hidden_layer_sizes=(5, 4, 5),
+       activation='relu',
+       solver='adam',
+       max_iter=10000,
+       random_state=100
+    )
+       mlp.fit(X_train_scaled, y_train)
+
+# Making Predictions and Evaluating
+
+#Predictions
+
+    predictions = mlp.predict(X_test_scaled)
+
+#Evaluation
+
+     from sklearn.metrics import classification_report, confusion_matrix
+     print("Confusion Matrix:")
+     print(confusion_matrix(y_test, predictions))
+
+     print("\nClassification Report:")
+     print(classification_report(y_test, predictions))
+
+# Sample Output:
+
+Confusion Matrix:
+[[ 5  0  0  0  0]
+ [ 0  2  0  0  1]
+ [ 0  0  3  0  0]
+ [ 0  0  0 11  0]
+ [ 0  0  0  1 17]]
+
+Classification Report:
+              precision    recall  f1-score   support
+       drugA       1.00      1.00      1.00         5
+       drugB       1.00      0.67      0.80         3
+       drugC       1.00      1.00      1.00         3
+       drugX       0.92      1.00      0.96        11
+       drugY       0.94      0.94      0.94        18
+
+# Running the Tests
 Explain how to run the automated tests for this system:
+
+Confusion Matrix:
+
+Used to evaluate the performance for each drug category.
+
+    print(confusion_matrix(y_test, predictions))
+
+Classification Report:
+
+provides metrics such as precision, recall, and F1-score.
+
+    print(classification_report(y_test, predictions))
 
 # Break down into end-to-end tests
 The script includes end-to-end testing through evaluation metrics such as:
@@ -81,7 +165,6 @@ Shubh  - Initial work- The Artificial Neural Network implementation for drug cla
 This project is licensed under the MIT License - see the LICENSE.md file for details.
 
 # Acknowledgments
-    Hat tip to anyone whose code was used
     Inspiration from the DATA 1200 and DATA 1202 course
     Guidance from the course instructor
     
